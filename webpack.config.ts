@@ -2,8 +2,24 @@ import path from 'path'
 import webpack from 'webpack'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
-const config: webpack.Configuration = (env) => {
+const config = (
+  _env: unknown,
+  args: {
+    mode: 'development' | 'production'
+  }
+): webpack.Configuration => {
+  const { mode } = args
+  const isDevelopment = mode === 'development'
+
+  const pluginsForDev = isDevelopment
+    ? [
+      new webpack.HotModuleReplacementPlugin(),
+      new ReactRefreshWebpackPlugin(),
+    ]
+    : []
+
   return {
     entry: path.resolve(__dirname, './src/index.tsx'),
     resolve: {
@@ -19,12 +35,16 @@ const config: webpack.Configuration = (env) => {
             loader: 'babel-loader',
             options: {
               cacheDirectory: true,
+              plugins: [
+                isDevelopment && require.resolve('react-refresh/babel')
+              ].filter(Boolean)
             }
           }
         }
       ]
     },
     plugins: [
+      ...pluginsForDev,
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html.ejs'),
       }),
