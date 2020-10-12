@@ -13,15 +13,26 @@ const config = (
   const { mode } = args
   const isDevelopment = mode === 'development'
 
+  const devtool = isDevelopment ? 'eval-source-map' : false
+
   const pluginsForDev = isDevelopment
-    ? [
-      new webpack.HotModuleReplacementPlugin(),
-      new ReactRefreshWebpackPlugin(),
-    ]
-    : []
+    ? {
+      babel: [
+        require.resolve('react-refresh/babel')
+      ],
+      webpack: [
+        new webpack.HotModuleReplacementPlugin(),
+        new ReactRefreshWebpackPlugin(),
+      ]
+    }
+    : { babel: [], webpack: [] }
 
   return {
     entry: path.resolve(__dirname, './src/index.tsx'),
+    devServer: {
+      open: true
+    },
+    devtool,
     resolve: {
       extensions: ['*', '.ts', '.tsx', 'json', '.js', '.jsx'],
       modules: ['node_modules']
@@ -36,15 +47,15 @@ const config = (
             options: {
               cacheDirectory: true,
               plugins: [
-                isDevelopment && require.resolve('react-refresh/babel')
-              ].filter(Boolean)
+                ...pluginsForDev.babel
+              ]
             }
           }
         }
       ]
     },
     plugins: [
-      ...pluginsForDev,
+      ...pluginsForDev.webpack,
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html.ejs'),
       }),
