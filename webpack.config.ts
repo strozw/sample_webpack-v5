@@ -34,8 +34,7 @@ const config = (
     },
     devtool,
     resolve: {
-      extensions: ['*', '.ts', '.tsx', 'json', '.js', '.jsx'],
-      modules: ['node_modules']
+      extensions: ['.ts', '.tsx', '.js', '.jsx', 'json']
     },
     module: {
       rules: [
